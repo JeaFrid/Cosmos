@@ -918,26 +918,7 @@ class CosmosFirebase {
     if (uid == null) {
       return await CosmosFirebase.get('users/$uid', true);
     } else {
-      if (CosmosFirebase.isSignedIn()) {
-        String getUid = uid;
-        DatabaseReference ref = FirebaseDatabase.instance.ref("users");
-        DataSnapshot snapshot = await ref.get();
-        Map mapX = snapshot.value as Map;
-        String user = "";
-        List mapList = mapX.keys.toList();
-
-        for (var i = 0; i < mapList.length; i++) {
-          if (mapList[i].toString().contains(getUid)) {
-            user = mapList[i];
-          }
-        }
-        DatabaseReference refer = FirebaseDatabase.instance.ref("users/$user");
-        DataSnapshot snapval = await refer.get();
-
-        return CosmosFirebase.decode(snapval.value.toString());
-      } else {
-        return [];
-      }
+      return await CosmosFirebase.get('users/"$uid"', true);
     }
   }
 }
