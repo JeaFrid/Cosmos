@@ -33,3 +33,11 @@
 > **CosmosInfo:** A quick Tooltip.
 
 > **height, width, heightPercentage, widthPercentage:** It allows you to perform operations with screen aspect ratios. It acts somewhat like the 'MediaQuery.sizeOf(context).width' class.
+
+## 0.0.9
+
+> **CosmosTR:** CosmosTR has been added where you can get Türkiye's provinces and districts.
+
+## 0.1.0
+
+> **CosmosFirebase.dataChanged():** Take action when database values ​​are updated in CosmosFirebase.

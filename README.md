@@ -1,10 +1,13 @@
 # Cosmos Flutter Pack❤
+
 _Developed by JeaFriday🎶_
 
 ## Why was it developed?
+
 Thanks to this package, which brings together the challenging materials created as a result of the efforts of many developers, no application will make you struggle with lines of code!
 
 ## Included in the Package
+
 > **CosmosAlert:** An alert viewer with options such as IOS, Material and customizable. Use it as a screen or just show alerts.
 
 > **Cosmos Button's:** Instead of complicated button stuff, customizable and easier to access buttons included in the Cosmos package.
