@@ -692,6 +692,28 @@ class CosmosTextBox extends StatelessWidget {
   }
 }
 
+Future<String?> pickImage() async {
+  if (kIsWeb) {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+    if (result != null) {
+      PlatformFile file = result.files.first;
+
+      return file.path;
+    }
+    return null;
+  } else {
+    final picker = ImagePicker();
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      return pickedFile.path;
+    }
+  }
+  return null;
+}
+
 class CosmosFirebase {
   static Future<String?> imagePickAndStoreFireStorage() async {
     if (kIsWeb) {
