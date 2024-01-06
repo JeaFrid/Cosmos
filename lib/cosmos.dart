@@ -1429,6 +1429,7 @@ void openSideMenu(BuildContext context, Widget page, List<Widget> children) {
 }
 
 class CosmosNavigation extends StatelessWidget {
+  final bool visible;
   final Widget child;
   final dynamic Function(int) onTap;
   final Color backgroundColor;
@@ -1447,6 +1448,7 @@ class CosmosNavigation extends StatelessWidget {
     required this.activeIndex,
     required this.icons,
     required this.onPressed,
+    required this.visible,
   });
 
   @override
@@ -1454,31 +1456,33 @@ class CosmosNavigation extends StatelessWidget {
     return MediaQuery.of(context).size.width < 800 ? mobile(context) : child;
   }
 
-  Stack mobile(context) {
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
-        SizedBox(
-          width: MediaQuery.sizeOf(context).width,
-          height: MediaQuery.sizeOf(context).height,
-          child: child,
-        ),
-        SizedBox(
-          height: 70,
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            bottomNavigationBar: NavBar(
-              activeColor: activeColor,
-              activeIndex: activeIndex,
-              backgroundColor: backgroundColor,
-              icons: icons,
-              inactiveColor: inactiveColor,
-              onTap: onTap,
-            ),
-          ),
-        ),
-      ],
-    );
+  Widget mobile(context) {
+    return visible == false
+        ? Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              SizedBox(
+                width: MediaQuery.sizeOf(context).width,
+                height: MediaQuery.sizeOf(context).height,
+                child: child,
+              ),
+              SizedBox(
+                height: 70,
+                child: Scaffold(
+                  backgroundColor: Colors.transparent,
+                  bottomNavigationBar: NavBar(
+                    activeColor: activeColor,
+                    activeIndex: activeIndex,
+                    backgroundColor: backgroundColor,
+                    icons: icons,
+                    inactiveColor: inactiveColor,
+                    onTap: onTap,
+                  ),
+                ),
+              ),
+            ],
+          )
+        : child;
   }
 }
 
