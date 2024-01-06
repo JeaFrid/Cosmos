@@ -918,7 +918,8 @@ class CosmosFirebase {
     if (uid == null) {
       return await CosmosFirebase.get('users/$uid', true);
     } else {
-      return await CosmosFirebase.get('users/"$uid"', true);
+      String uids = await CosmosFirebase.getUID();
+      return await CosmosFirebase.get('users/"$uids"', true);
     }
   }
 }
