@@ -367,105 +367,832 @@ class MyApp extends StatelessWidget {
 
 ```
 
+### CosmosBody
+
+Creates a scrollable Scaffold>body in your application based on the situation. Creates a scrollable widget that can work horizontally and vertically, with mouse and touch.
+
+- **scrollDirection:** Horizontal or vertical? (Axis)
+- **scrollable:** Is it scrollable? (bool)
+- **children:** Children (List Widget)
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () {
+                CosmosAlert.showCustomAlert(
+                  context,
+                  const Text("Hello World!"),
+                );
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+```
+
+### CosmosTextBox
+
+Creates a quick customizable (Box) TextField of Cosmos type.
+
+- **data:** Hint text (String)
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            const CosmosTextBox("Example TextBox"),
+            TextButton(
+              onPressed: () {
+                CosmosAlert.showCustomAlert(
+                  context,
+                  const Text("Hello World!"),
+                );
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+```
+### pickImage()
+
+Selects an image from the gallery.
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            const CosmosTextBox("Example TextBox"),
+            TextButton(
+              onPressed: () async {
+                String? imagePath = await pickImage();
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+```
+
+### CosmosFirebase
+
+You can perform Firebase operations most quickly, efficiently, and functionally.
+
+#### CosmosFirebase.imagePickAndStoreFireStorage()
+
+Selects an image from the gallery, processes the image in Firebase Storage, and returns the URL of the image as a String data type.
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                String? imagePath =
+                    await CosmosFirebase.imagePickAndStoreFireStorage();
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+```
+
+#### CosmosFirebase.dataChanged()
+
+This function, working within Firebase Realtime Database, is executed in the initState. It runs when data is added or deleted from the database and returns the current last value.
+
+- **reference:** String
+- **onDataChanged:** void Function(Object element)
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    CosmosFirebase.dataChanged(
+      reference: "users",
+      onDataChanged: (element) {},
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold();
+  }
+}
+
+
+
+```
+#### CosmosFirebase.deleteData()
+
+This function, working within Firebase Realtime Database, deletes data from the database.
+
+- **ref:** String
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                CosmosFirebase.deleteData("users/131643464");
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+```
+
+#### CosmosFirebase.storeValue()
+
+This function, working within Firebase Realtime Database, adds data to the database.
+
+- **reference:** String
+- **tag:** String
+- **valueList:** List
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                await CosmosFirebase.storeValue(
+                  "users",
+                  "13136546413",
+                  [
+                    "username",
+                    "surname",
+                    "age",
+                  ],
+                );
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+```
+
+#### CosmosFirebase.getOnce()
+
+This function, working within Firebase Realtime Database, retrieves all data in a top-level category in the database.
+
+- **reference:** String
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                List getAllData = await CosmosFirebase.getOnce("users");
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+```
+
+#### CosmosFirebase.register()
+
+This function, working within Firebase Realtime Database and Firebase Auth, creates a user with Firebase Auth and also creates a user entry in the 'users' category within the Realtime Database.
+
+- **email:** String
+- **password:** String
+- **userDatas:** List
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                await CosmosFirebase.register(
+                  "email@gmail.com",
+                  "aaaaaa",
+                  [],
+                );
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+```
+
+#### CosmosFirebase.login()
+
+This function, working within Firebase Realtime Database and Firebase Auth, logs in the user who registered with CosmosFirebase.register().
+
+- **email:** String
+- **password:** String
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                await CosmosFirebase.login(
+                  "email@gmail.com",
+                  "aaaaaa",
+                );
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+```
+
+#### CosmosFirebase.logout()
+
+This function, working within Firebase Realtime Database and Firebase Auth, logs out the user who logged in with CosmosFirebase.login().
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                await CosmosFirebase.logout();
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 
 ```
 
 
+#### CosmosFirebase.getUID()
 
-```
+This function, working within Firebase Realtime Database and Firebase Auth, retrieves the unique identifier of the user who logged in with CosmosFirebase.login().
 
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
 
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
-```
-
-
-
-```
-
-
-
-
-```
-
-
-
-```
-
-
-
-```
-
-
-
-```
-
-
-
-```
-
-
-
-```
-
-
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                String getMyUID = await CosmosFirebase.getUID();
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 
 ```
 
 
+#### CosmosFirebase.isSignedIn()
+
+This function, working within Firebase Realtime Database and Firebase Auth, checks whether the user is signed in or not, and returns true or false.
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                if (CosmosFirebase.isSignedIn()) {
+                  print(true);
+                }
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+```
+
+#### CosmosFirebase.get()
+
+This function, working within Firebase Realtime Database, retrieves a specific data from the database.
+
+- **reference:** String
+- **fevalue:** bool (Always set to true.)
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                List getValue = await CosmosFirebase.get("users/64645654", true);
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+```
+
+### CosmosTools
+
+#### CosmosTools.sortFromList()
+
+Sorts a list by time order.
+
+- **list:** List
+- **index:** int (The sequence number of the element containing CosmosTime.getNowTimeString() in the list.)
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  List example = [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    CosmosTime.getNowTimeString(),
+  ];
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                List getList = CosmosTools.sortFromList(example, 5);
+                List reversedList = getList.reversed.toList();
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 
 ```
 
 
+### CosmosTools
+
+#### CosmosTools.to()
+
+Directly uses the widget to navigate between pages.
+
+- **context:** BuildContext
+- **page:** Widget
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                CosmosTools.to(context, MyHomePage());
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+```
+
+### CosmosTools
+
+#### CosmosTools.back()
+
+Close the current screen to return to the previous one.
+
+- **context:** BuildContext
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                CosmosTools.back(context);
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+```
+
+### CosmosTools
+
+#### CosmosTools.go()
+
+Directly navigates between pages using route names.
+
+- **context:** BuildContext
+- **routeName:** String
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                CosmosTools.go(context, "/home");
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+```
+
+### CosmosTools
+
+#### CosmosTools.allCloseAndGo()
+
+Closes the previous screen and navigates between pages using routes.
+
+- **context:** BuildContext
+- **routeName:** String
+
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                CosmosTools.allCloseAndGo(context, "/home");
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 
 ```
 
 
+### CosmosTools
 
+#### CosmosTools.getRequestContent()
 
-```
+Fetches the content of the specified URL.
 
+- **url:** String
 
+**Example:**
+```dart
+import 'package:cosmos/cosmos.dart';
+import 'package:flutter/material.dart';
 
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
-```
-
-
-
-
-```
-
-
-
-
-```
-
-
-
-
-```
-
-
-
-
-```
-
-
-
-
-```
-
-
-
-
-```
-
-
-
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CosmosBody(
+          scrollDirection: Axis.vertical,
+          scrollable: true,
+          children: [
+            TextButton(
+              onPressed: () async {
+                var get = await CosmosTools.getRequestContent("https://bybug.net");
+              },
+              child: const Text("data"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 ```
 
-
+Thanks for using it in your project! ♥
