@@ -1,6 +1,6 @@
 name: cosmos
 description: "Thanks to this package, which brings together the challenging materials created as a result of the efforts of many developers, no application will make you struggle with lines of code!"
-version: 0.2.2
+version: 0.2.6
 homepage: https://github.com/JeaFrid/Cosmos.git
 
 environment:

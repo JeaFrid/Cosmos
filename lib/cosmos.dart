@@ -61,6 +61,33 @@ class CosmosBackgroundImage extends StatelessWidget {
 }
 
 class CosmosTime {
+  static String fromMillisecondsToDate(int milliseconds) {
+    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(milliseconds);
+
+    String formattedDateTime =
+        "${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}";
+
+    return formattedDateTime;
+  }
+
+  static int getMilliseconds(String dateTimeString) {
+    List<String> dateTimeParts = dateTimeString.split(" ");
+    List<String> dateParts = dateTimeParts[0].split("/");
+    List<String> timeParts = dateTimeParts[1].split(":");
+
+    int year = int.parse(dateParts[2]);
+    int month = int.parse(dateParts[1]);
+    int day = int.parse(dateParts[0]);
+    int hour = int.parse(timeParts[0]);
+    int minute = int.parse(timeParts[1]);
+    int second = int.parse(timeParts[2]);
+
+    DateTime dateTime = DateTime(year, month, day, hour, minute, second);
+
+    int millisecondsSinceEpoch = dateTime.millisecondsSinceEpoch;
+    return millisecondsSinceEpoch;
+  }
+
   static void timer(
       {required Duration duration, required void Function(Timer timer) event}) {
     Timer.periodic(duration, event);
@@ -758,14 +785,14 @@ class CosmosFirebase {
 
   static void dataChanged(
       {required String reference,
-      required void Function(Object element) onTap}) {
+      required void Function(Object element) onDataChanged}) {
     late DatabaseReference messagesRef;
     messagesRef = FirebaseDatabase.instance.ref().child(reference);
 
     messagesRef.onChildAdded.listen((event) {
       var element = event.snapshot.value;
       if (element != null) {
-        onTap(CosmosFirebase.decode(element.toString()));
+        onDataChanged(CosmosFirebase.decode(element.toString()));
       }
     });
   }
@@ -925,6 +952,28 @@ class CosmosFirebase {
 }
 
 class CosmosTools {
+  static List sortFromList(List list, int index) {
+    List listCurrent = [];
+    for (var element in list) {
+      List elementCurrent = element;
+      elementCurrent[index] =
+          CosmosTime.getMilliseconds(elementCurrent[index]).toString();
+
+      listCurrent.add(elementCurrent);
+    }
+    List sortList = [];
+    listCurrent
+        .sort((a, b) => (int.parse(a[index])).compareTo(int.parse(b[index])));
+    for (var element in listCurrent) {
+      List elementCurrent = element;
+      elementCurrent[index] =
+          CosmosTime.fromMillisecondsToDate(int.parse(elementCurrent[index]))
+              .toString();
+                sortList.add(elementCurrent);
+    }
+    return sortList;
+  }
+
   ///Switches from the current screen to the target screen.
   static void to(BuildContext context, Widget page) {
     Navigator.push(
@@ -1094,9 +1143,10 @@ class CosmosImage extends StatelessWidget {
   final String? path;
   final double? width;
   final double? height;
+  final BoxFit? fit;
   final ImageProvider<Object>? errorImage;
   const CosmosImage(this.path,
-      {super.key, this.width, this.height, this.errorImage});
+      {super.key, this.width, this.height, this.errorImage, this.fit});
 
   @override
   Widget build(BuildContext context) {
@@ -1104,14 +1154,14 @@ class CosmosImage extends StatelessWidget {
       imageUrl: path ?? "",
       key: UniqueKey(),
       width: width ?? 100,
-      fit: BoxFit.cover,
+      fit: fit ?? BoxFit.cover,
       height: height ?? 100,
       errorWidget: (context, error, stackTrace) {
         return Image(
           image: AssetImage(path ?? ""),
           width: width ?? 100,
           key: UniqueKey(),
-          fit: BoxFit.cover,
+          fit: fit ?? BoxFit.cover,
           height: height ?? 100,
           errorBuilder: (context, error, stackTrace) {
             return errorImage == null
@@ -1124,7 +1174,7 @@ class CosmosImage extends StatelessWidget {
                     image: errorImage ?? const AssetImage("assets/user.png"),
                     width: width ?? 100,
                     key: UniqueKey(),
-                    fit: BoxFit.cover,
+                    fit: fit ?? BoxFit.cover,
                     height: height ?? 100,
                   );
           },
@@ -1465,20 +1515,23 @@ class CosmosNavigation extends StatelessWidget {
           height: MediaQuery.sizeOf(context).height,
           child: child,
         ),
-       visible ?? true == true ?SizedBox(
-          height: 70,
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            bottomNavigationBar: NavBar(
-              activeColor: activeColor,
-              activeIndex: activeIndex,
-              backgroundColor: backgroundColor,
-              icons: icons,
-              inactiveColor: inactiveColor,
-              onTap: onTap,
+        Visibility(
+          visible: visible ?? true,
+          child: SizedBox(
+            height: 70,
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              bottomNavigationBar: NavBar(
+                activeColor: activeColor,
+                activeIndex: activeIndex,
+                backgroundColor: backgroundColor,
+                icons: icons,
+                inactiveColor: inactiveColor,
+                onTap: onTap,
+              ),
             ),
           ),
-        ) : child,
+        ),
       ],
     );
   }
