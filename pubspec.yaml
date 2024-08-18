@@ -1,6 +1,6 @@
 name: cosmos
 description: "Thanks to this package, which brings together the challenging materials created as a result of the efforts of many developers, no application will make you struggle with lines of code!"
-version: 0.2.6
+version: 0.4.4
 homepage: https://github.com/JeaFrid/Cosmos.git
 
 environment:
@@ -8,18 +8,21 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
-  animated_bottom_navigation_bar: ^1.3.0
-  cached_network_image: ^3.3.0
-  dio: ^5.4.0
-  file_picker: ^6.1.1
-  firebase_auth: ^4.15.0
-  firebase_database: ^10.3.6
-  firebase_storage: ^11.5.3
+  animated_bottom_navigation_bar: ^1.3.3
+  cached_network_image: ^3.4.1
+  carousel_slider: ^5.0.0
+  clipboard: ^0.1.3
+  dio: ^5.6.0
+  file_picker: ^8.1.2
+  firebase_auth: ^5.1.4
+  firebase_database: ^11.0.4
+  firebase_storage: ^12.1.3
   flutter:
     sdk: flutter
-  image_picker: ^1.0.6
-  jeadesing: ^0.0.4
-  shared_preferences: ^2.2.2
+  flutter_datetime_picker_plus: ^2.2.0
+  image_picker: ^1.1.2
+  shared_preferences: ^2.3.2
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:

@@ -1,11 +1,17 @@
+// ignore_for_file: unused_import
+
 library cosmos;
 
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/gestures.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
+    as datetime;
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart' as slider;
 import 'package:file_picker/file_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,10 +19,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:clipboard/clipboard.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:jeadesing/jeadesing.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 ///TR</br>
 ///Uygulamanın arkaplanına bir görsel ekler. Şeffaflık ayarı düşürüldükçe, arkaplan rengine kaynaşır.</br></br>
@@ -155,6 +161,31 @@ class CosmosTime {
 }
 
 class CosmosAlert {
+  static void showToast(
+    BuildContext context, {
+    required Widget child,
+    Color? backgroundColor,
+    EdgeInsetsGeometry? margin,
+  }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        elevation: 12,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(200),
+        ),
+        backgroundColor:
+            backgroundColor ?? const Color.fromARGB(255, 16, 16, 16),
+        behavior: SnackBarBehavior.floating,
+        margin: margin ??
+            const EdgeInsets.symmetric(
+              horizontal: 150,
+              vertical: 80,
+            ),
+        content: child,
+      ),
+    );
+  }
+
   static Future<void> showAnimatedDialog(
     BuildContext context,
     String title,
@@ -244,6 +275,146 @@ class CosmosAlert {
             ),
           );
         });
+  }
+
+  static loading(BuildContext context, {Color? color}) {
+    return CosmosAlert.showCustomAlert(
+      context,
+      Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SizedBox(
+          width: width(context),
+          height: height(context),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                color: Colors.transparent,
+                shape: BoxShape.circle,
+              ),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  color: color,
+                  strokeWidth: 5,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static loadingIOS(BuildContext context, {Color? color}) {
+    return CosmosAlert.showCustomAlert(
+      context,
+      Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SizedBox(
+          width: width(context),
+          height: height(context),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                color: Colors.transparent,
+                shape: BoxShape.circle,
+              ),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CupertinoActivityIndicator(
+                  color: color ?? Colors.white,
+                  radius: 12,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static showMessage(BuildContext context, String title, String subtitle,
+      {String? button,
+      Color? color,
+      Color? backgroundColor,
+      void Function()? onTap}) {
+    return CosmosAlert.showCustomAlert(
+      context,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            width: width(context) < 600 ? widthPercentage(context, 0.8) : 400,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: backgroundColor ?? Colors.white,
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: color ?? Colors.black,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: color ?? Colors.black.withOpacity(0.7),
+                          fontSize: 12,
+                          overflow: TextOverflow.clip,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    InkWell(
+                      onTap: onTap ??
+                          () {
+                            Navigator.pop(context);
+                          },
+                      borderRadius: BorderRadius.circular(10),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          button ?? "OK",
+                          style: TextStyle(
+                            color: color ?? Colors.black.withOpacity(0.7),
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ).then((value) {
+      onTap!();
+    });
   }
 }
 
@@ -341,88 +512,6 @@ class CosmosButtonIcon extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-///TR</br>
-///Materyal tasarımlarınızda kullanabileceğiniz modern bir buton.</br></br>
-///US</br>
-///A modern button that you can use in your material designs.
-class CosmosButton extends StatelessWidget {
-  final EdgeInsetsGeometry? padding;
-  final EdgeInsetsGeometry? margin;
-  final BorderRadius? borderRadius;
-  final double? width;
-  final Color? backgroundColor;
-  final Gradient? gradient;
-  final double? height;
-  final Color? color;
-  final Widget? child;
-  final String? data;
-  final List<BoxShadow>? boxShadow;
-  final void Function()? onTap;
-  final Color? focusColor;
-  final Color? hoverColor;
-  final Color? highlightColor;
-  final Color? splashColor;
-  final TextStyle? textStyle;
-  const CosmosButton(
-    this.data, {
-    super.key,
-    this.padding,
-    this.onTap,
-    this.margin,
-    this.width,
-    this.height,
-    this.color,
-    this.borderRadius,
-    this.gradient,
-    this.child,
-    this.textStyle,
-    this.backgroundColor,
-    this.focusColor,
-    this.hoverColor,
-    this.highlightColor,
-    this.splashColor,
-    this.boxShadow,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap ?? () {},
-      hoverColor: hoverColor,
-      splashColor: splashColor,
-      highlightColor: highlightColor,
-      borderRadius: borderRadius ?? BorderRadius.circular(5),
-      child: Container(
-        padding: padding ?? const EdgeInsets.all(8),
-        margin: margin,
-        decoration: BoxDecoration(
-          color: backgroundColor ?? Colors.transparent,
-          borderRadius: borderRadius ?? BorderRadius.circular(5),
-          gradient: gradient,
-          boxShadow: boxShadow,
-        ),
-        width: width,
-        height: height,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            child ??
-                Text(
-                  data ?? "Hello World JeaFriday!",
-                  style: textStyle ??
-                      const TextStyle(
-                          fontSize: 14,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w800),
-                ),
-          ],
         ),
       ),
     );
@@ -599,25 +688,22 @@ class CosmosTextBox extends StatelessWidget {
   final InputBorder? enabledBorder;
   final double? cursorHeight;
   final bool? label;
-  final FocusNode? nextTextBox;
   final void Function()? onPressedTabKey;
   final InputBorder? border;
   final TextStyle? labelStyle;
-  final FocusNode? focusNode;
   final bool? readOnly;
   final int? maxLines;
   final InputDecoration? decoration;
   final double? fontSize;
   final TextInputType? keyboardType;
   final BorderRadius? borderRadius;
-  final EdgeInsetsGeometry? padding;
+
   const CosmosTextBox(
     this.data, {
     super.key,
     this.controller,
     this.color,
     this.borderRadius,
-    this.padding,
     this.keyboardType,
     this.maxLines,
     this.label,
@@ -637,84 +723,64 @@ class CosmosTextBox extends StatelessWidget {
     this.decoration,
     this.labelStyle,
     this.obscureText,
-    this.focusNode,
     this.onPressedTabKey,
-    this.nextTextBox,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: padding ?? const EdgeInsets.all(0.0),
-      child: RawKeyboardListener(
-        focusNode: FocusNode(),
-        onKey: (RawKeyEvent event) {
-          if (event.isKeyPressed(LogicalKeyboardKey.tab)) {
-            if (onPressedTabKey != null) {
-              onPressedTabKey;
-            } else if (nextTextBox != null) {
-              FocusScope.of(context).requestFocus(nextTextBox);
-            }
-          }
-        },
-        child: TextField(
-          controller: controller ?? TextEditingController(),
-          focusNode: focusNode,
-          style: TextStyle(
-            color: color?.withOpacity(0.7) ?? Colors.black.withOpacity(0.7),
-            fontSize: fontSize,
-          ),
-          onChanged: onChanged,
-          onAppPrivateCommand: onAppPrivateCommand,
-          onEditingComplete: onEditingComplete,
-          onSubmitted: onSubmitted,
-          onTap: onTap,
-          onTapOutside: onTapOutside,
-          readOnly: readOnly ?? false,
-          cursorWidth: cursorWidth ?? 2.0,
-          cursorHeight: cursorHeight,
-          cursorColor: color?.withOpacity(0.7) ?? Colors.black.withOpacity(0.7),
-          keyboardType: keyboardType,
-          maxLines: maxLines,
-          obscureText: obscureText ?? false,
-          decoration: decoration ??
-              InputDecoration(
-                hintStyle: TextStyle(
-                  fontSize: fontSize,
-                  color:
-                      color?.withOpacity(0.3) ?? Colors.black.withOpacity(0.3),
-                ),
-                labelText: label ?? false == true ? data : null,
-                hintText: data,
-                labelStyle: TextStyle(
-                  color:
-                      color?.withOpacity(0.7) ?? Colors.black.withOpacity(0.7),
-                ),
-                focusedBorder: focusedBorder ??
-                    OutlineInputBorder(
-                      borderRadius: borderRadius ?? BorderRadius.circular(5),
-                      borderSide: BorderSide(
-                        width: 1,
-                        color: color?.withOpacity(0.7) ??
-                            Colors.black.withOpacity(0.7),
-                      ),
-                    ),
-                enabledBorder: enabledBorder ??
-                    OutlineInputBorder(
-                      borderRadius: borderRadius ?? BorderRadius.circular(5),
-                      borderSide: BorderSide(
-                        width: 1,
-                        color: color?.withOpacity(0.7) ??
-                            Colors.black.withOpacity(0.7),
-                      ),
-                    ),
-                border: border ??
-                    OutlineInputBorder(
-                      borderRadius: borderRadius ?? BorderRadius.circular(5),
-                    ),
-              ),
-        ),
+    return TextField(
+      controller: controller ?? TextEditingController(),
+      style: TextStyle(
+        color: color?.withOpacity(0.7) ?? Colors.black.withOpacity(0.7),
+        fontSize: fontSize,
       ),
+      onChanged: onChanged,
+      onAppPrivateCommand: onAppPrivateCommand,
+      onEditingComplete: onEditingComplete,
+      onSubmitted: onSubmitted,
+      onTap: onTap,
+      onTapOutside: onTapOutside,
+      readOnly: readOnly ?? false,
+      cursorWidth: cursorWidth ?? 2.0,
+      cursorHeight: cursorHeight,
+      cursorColor: color?.withOpacity(0.7) ?? Colors.black.withOpacity(0.7),
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      obscureText: obscureText ?? false,
+      decoration: decoration ??
+          InputDecoration(
+            hintStyle: TextStyle(
+              fontSize: fontSize,
+              color: color?.withOpacity(0.3) ?? Colors.black.withOpacity(0.3),
+            ),
+            labelText: label ?? false == true ? data : null,
+            hintText: data,
+            labelStyle: TextStyle(
+              color: color?.withOpacity(0.7) ?? Colors.black.withOpacity(0.7),
+            ),
+            focusedBorder: focusedBorder ??
+                OutlineInputBorder(
+                  borderRadius: borderRadius ?? BorderRadius.circular(5),
+                  borderSide: BorderSide(
+                    width: 1,
+                    color: color?.withOpacity(0.7) ??
+                        Colors.black.withOpacity(0.7),
+                  ),
+                ),
+            enabledBorder: enabledBorder ??
+                OutlineInputBorder(
+                  borderRadius: borderRadius ?? BorderRadius.circular(5),
+                  borderSide: BorderSide(
+                    width: 1,
+                    color: color?.withOpacity(0.7) ??
+                        Colors.black.withOpacity(0.7),
+                  ),
+                ),
+            border: border ??
+                OutlineInputBorder(
+                  borderRadius: borderRadius ?? BorderRadius.circular(5),
+                ),
+          ),
     );
   }
 }
@@ -775,7 +841,7 @@ class CosmosFirebase {
           return downloadUrl;
         } catch (error) {
           if (kDebugMode) {
-            print("Firebase Storage Error: $error");
+            throw Exception("CosmosFirebase Storage Error: $error");
           }
         }
       }
@@ -786,55 +852,132 @@ class CosmosFirebase {
   static void dataChanged(
       {required String reference,
       required void Function(Object element) onDataChanged}) {
-    late DatabaseReference messagesRef;
-    messagesRef = FirebaseDatabase.instance.ref().child(reference);
+    try {
+      late DatabaseReference messagesRef;
+      messagesRef = FirebaseDatabase.instance.ref().child(reference);
 
-    messagesRef.onChildAdded.listen((event) {
-      var element = event.snapshot.value;
-      if (element != null) {
-        onDataChanged(CosmosFirebase.decode(element.toString()));
-      }
-    });
+      messagesRef.onChildAdded.listen((event) {
+        var element = event.snapshot.value;
+        if (element != null) {
+          onDataChanged(CosmosFirebase.decode(element.toString()));
+        }
+      });
+    } catch (e) {
+      throw Exception("CosmosFirebase DataChanged Problem: $e");
+    }
   }
 
-  static void deleteData(String ref) {
-    DatabaseReference databaseReference =
-        FirebaseDatabase.instance.ref().child(ref);
+  @Deprecated(
+      'Use delete() instead. This function will be removed in the next release.')
+  static void deleteData(String ref) async {
+    try {
+      DatabaseReference databaseReference =
+          FirebaseDatabase.instance.ref().child(ref);
 
-    databaseReference.remove().then((_) {
-      if (kDebugMode) {
-        print("succesful");
-      }
-    }).catchError((onError) {
-      if (kDebugMode) {
-        print("Error: $onError");
-      }
-    });
+      await databaseReference.remove().then((_) {
+        if (kDebugMode) {
+          print("succesful");
+        }
+      }).catchError((onError) {
+        if (kDebugMode) {
+          print("Error: $onError");
+        }
+      });
+    } catch (e) {
+      throw Exception("CosmosFirebase $e");
+    }
   }
 
+  static Future<void> delete(
+    String ref,
+    void Function()? onSuccess,
+    void Function(Object e)? onError,
+  ) async {
+    try {
+      DatabaseReference databaseReference =
+          FirebaseDatabase.instance.ref().child(ref);
+
+      await databaseReference.remove().then((_) {
+        if (onSuccess != null) {
+        onSuccess();
+      }
+      }).catchError((onError) {
+       if (onError != null) {
+        onError(e);
+      }
+      });
+    } catch (e) {
+      if (onError != null) {
+        onError(e);
+      }
+      throw Exception("CosmosFirebase $e");
+    }
+  }
+
+  @Deprecated(
+      'Use add() instead. This function will be removed in the next release.')
   static Future<String> storeValue(
-      String reference, String tag, List valueList) async {
+    String reference,
+    String tag,
+    List valueList,
+    void Function()? onSuccess,
+    void Function()? onError,
+  ) async {
     try {
       DatabaseReference ref = FirebaseDatabase.instance.ref(reference);
       String val = CosmosFirebase.encode(valueList);
       await ref.child('"$tag"').set(val);
+      if (onSuccess != null) {
+        onSuccess();
+      }
       return "successful";
     } catch (e) {
+      if (onError != null) {
+        onError();
+      }
       return "error: ${e.toString()}";
     }
   }
 
-  static Future<List> getOnce(String reference) async {
-    DatabaseReference ref = FirebaseDatabase.instance.ref(reference);
-    DataSnapshot snapshot = await ref.get();
-
-    Map mapX = snapshot.value as Map;
-    List retVal = [];
-    for (var i = 0; i < mapX.keys.length; i++) {
-      retVal.add(CosmosFirebase.decodeAndTagAddEndElement(
-          mapX.keys.elementAt(i), mapX.values.elementAt(i)));
+  static Future<void> add({
+    required String reference,
+    required String tag,
+    required List value,
+    void Function()? onSuccess,
+    void Function(Object e)? onError,
+  }) async {
+    try {
+      DatabaseReference ref = FirebaseDatabase.instance.ref(reference);
+      String val = CosmosFirebase.encode(value);
+      await ref.child('"$tag"').set(val);
+      if (onSuccess != null) {
+        onSuccess();
+      }
+    } catch (e) {
+      if (onError != null) {
+        onError(e);
+      }
+      throw Exception("CosmosFirebase add() Problem: $e");
     }
-    return retVal;
+  }
+
+  static Future<List> getOnce(
+    String reference,
+  ) async {
+    try {
+      DatabaseReference ref = FirebaseDatabase.instance.ref(reference);
+      DataSnapshot snapshot = await ref.get();
+
+      Map mapX = snapshot.value as Map;
+      List retVal = [];
+      for (var i = 0; i < mapX.keys.length; i++) {
+        retVal.add(CosmosFirebase.decodeAndTagAddEndElement(
+            mapX.keys.elementAt(i), mapX.values.elementAt(i)));
+      }
+      return retVal;
+    } catch (e) {
+      throw Exception("CosmosFirebase getOnce() Problem: $e");
+    }
   }
 
   ///It pulls data from Firebase Realtime Database.
@@ -872,17 +1015,125 @@ class CosmosFirebase {
   ///</br>It registers using "FirebaseAuth.instance.createUserWithEmailAndPassword()"
   ///</br>and sends the [userDatas] list to the users reference of the Realtime Database
   ///</br>using the "user.user!.uid" tag.
+  @Deprecated(
+      'Use signUp() instead. This function will be removed in the next release.')
   static Future<List> register(
       String email, String password, List userDatas) async {
     final FirebaseAuth auth = FirebaseAuth.instance;
     try {
       var user = await auth.createUserWithEmailAndPassword(
           email: email, password: password);
+      await CosmosFirebase.add(
+        reference: "users",
+        tag: user.user!.uid,
+        value: userDatas,
+      );
 
-      await CosmosFirebase.storeValue("users", user.user!.uid, userDatas);
       return [1.toString(), user.user.toString()];
     } catch (e) {
       return [0.toString(), e.toString()];
+    }
+  }
+
+  static Future<void> signUp(
+      {required String email,
+      required String password,
+      required List userDatas,
+      void Function()? onSuccess,
+      void Function(String error)? onError,
+      bool? trError}) async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    try {
+      var user = await auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+      await CosmosFirebase.add(
+        reference: "users",
+        tag: user.user!.uid,
+        value: userDatas,
+      );
+      if (onSuccess != null) {
+        onSuccess();
+      }
+    } catch (e) {
+      if (trError == null) {
+        if (onError != null) {
+          onError(e.toString());
+        }
+      } else if (trError == true) {
+        if (e.toString().contains("invalid-email")) {
+          if (onError != null) {
+            onError("Geçersiz e-posta adresi");
+          }
+        } else if (e.toString().contains("email-already-in-use")) {
+          if (onError != null) {
+            onError("Bu e-posta adresiyle zaten bir hesap mevcut.");
+          }
+        } else if (e.toString().contains("user-not-found")) {
+          if (onError != null) {
+            onError("Kullanıcı bulunamadı.");
+          }
+        } else if (e.toString().contains("wrong-password")) {
+          if (onError != null) {
+            onError("Yanlış parola.");
+          }
+        } else if (e.toString().contains("too-many-requests")) {
+          if (onError != null) {
+            onError(
+                "Çok fazla istek yapıldı. Tekrar denemeden önce bir süre bekleyin.");
+          }
+        } else if (e.toString().contains("user-disabled")) {
+          if (onError != null) {
+            onError("Kullanıcı devre dışı bırakıldı.");
+          }
+        } else if (e.toString().contains("operation-not-allowed")) {
+          if (onError != null) {
+            onError("Bu işlem kullanıcılar için etkinleştirilmemiş.");
+          }
+        } else if (e.toString().contains("network-request-failed")) {
+          if (onError != null) {
+            onError(
+                "Ağ isteği başarısız oldu. Lütfen internet bağlantınızı kontrol edin.");
+          }
+        } else if (e.toString().contains("user-mismatch")) {
+          if (onError != null) {
+            onError(
+                "Giriş yapmaya çalışırken kullanıcı e-posta adresi ve parolası eşleşmiyor.");
+          }
+        } else if (e.toString().contains("invalid-credential")) {
+          if (onError != null) {
+            onError("Geçersiz kimlik bilgisi");
+          }
+        } else if (e.toString().contains("app-deleted")) {
+          if (onError != null) {
+            onError(
+                "Proje, geliştiriciler tarafından artık geliştirilmediği için giriş denemesi başarısız oldu. Lütfen geliştirici ile iletişime geçin.");
+          }
+        } else if (e.toString().contains("weak-password")) {
+          if (onError != null) {
+            onError("Şifreniz en az altı karakterden oluşmalıdır.");
+          }
+        } else if (e.toString().contains("invalid-verification-code")) {
+          if (onError != null) {
+            onError("Doğrulama kodu geçersiz veya süresi dolmuş.");
+          }
+        } else if (e.toString().contains("missing-verification-code")) {
+          if (onError != null) {
+            onError("Doğrulama kodu eksik.");
+          }
+        } else if (e.toString().contains("invalid-verification-id")) {
+          if (onError != null) {
+            onError("Geçersiz doğrulama kimliği.");
+          }
+        } else if (e.toString().contains("session-expired")) {
+          if (onError != null) {
+            onError("Oturumun süresi dolmuş.");
+          }
+        } else {
+          if (onError != null) {
+            onError("Bilinmeyen bir hata oluştu.\n\n$e");
+          }
+        }
+      }
     }
   }
 
@@ -890,6 +1141,8 @@ class CosmosFirebase {
   ///</br>the first item of the returned list is 1. If it fails, it returns 0.
   ///</br>In case of success, the second item will be user.user. On failure,
   ///</br>the second item of the list returns an error message.
+  @Deprecated(
+      'Use signIn() instead. This function will be removed in the next release.')
   static Future<List> login(String email, String password) async {
     final FirebaseAuth auth = FirebaseAuth.instance;
     try {
@@ -901,10 +1154,97 @@ class CosmosFirebase {
     }
   }
 
-  ///Logs out of Firebase Auth.
-  static logout() async {
+  static Future<void> signIn(
+      {required String email,
+      required String password,
+      void Function()? onSuccess,
+      void Function(String error)? onError,
+      bool? trError}) async {
     final FirebaseAuth auth = FirebaseAuth.instance;
-    auth.signOut();
+    try {
+      await auth.signInWithEmailAndPassword(email: email, password: password);
+      if (onSuccess != null) {
+        onSuccess();
+      }
+    } catch (e) {
+      if (trError == null) {
+        onError != null ? onError(e.toString()) : null;
+      } else if (trError == true) {
+        if (e.toString().contains("invalid-email")) {
+          onError != null ? onError("Geçersiz e-posta adresi") : null;
+        } else if (e.toString().contains("email-already-in-use")) {
+          onError != null
+              ? onError("Bu e-posta adresiyle zaten bir hesap mevcut.")
+              : null;
+        } else if (e.toString().contains("user-not-found")) {
+          onError != null ? onError("Kullanıcı bulunamadı.") : null;
+        } else if (e.toString().contains("wrong-password")) {
+          onError != null ? onError("Yanlış parola.") : null;
+        } else if (e.toString().contains("too-many-requests")) {
+          onError != null
+              ? onError(
+                  "Çok fazla istek yapıldı. Tekrar denemeden önce bir süre bekleyin.")
+              : null;
+        } else if (e.toString().contains("user-disabled")) {
+          onError != null ? onError("Kullanıcı devre dışı bırakıldı.") : null;
+        } else if (e.toString().contains("operation-not-allowed")) {
+          onError != null
+              ? onError("Bu işlem kullanıcılar için etkinleştirilmemiş.")
+              : null;
+        } else if (e.toString().contains("network-request-failed")) {
+          onError != null
+              ? onError(
+                  "Ağ isteği başarısız oldu. Lütfen internet bağlantınızı kontrol edin.")
+              : null;
+        } else if (e.toString().contains("user-mismatch")) {
+          onError != null
+              ? onError(
+                  "Giriş yapmaya çalışırken kullanıcı e-posta adresi ve parolası eşleşmiyor.")
+              : null;
+        } else if (e.toString().contains("invalid-credential")) {
+          onError != null ? onError("Geçersiz kimlik bilgisi") : null;
+        } else if (e.toString().contains("app-deleted")) {
+          onError != null
+              ? onError(
+                  "Proje, geliştiriciler tarafından artık geliştirilmediği için giriş denemesi başarısız oldu. Lütfen geliştirici ile iletişime geçin.")
+              : null;
+        } else if (e.toString().contains("invalid-verification-code")) {
+          onError != null
+              ? onError("Doğrulama kodu geçersiz veya süresi dolmuş.")
+              : null;
+        } else if (e.toString().contains("missing-verification-code")) {
+          onError != null ? onError("Doğrulama kodu eksik.") : null;
+        } else if (e.toString().contains("invalid-verification-id")) {
+          onError != null ? onError("Geçersiz doğrulama kimliği.") : null;
+        } else if (e.toString().contains("weak-password")) {
+          onError != null
+              ? onError("Şifreniz en az altı karakterden oluşmalıdır.")
+              : null;
+        } else if (e.toString().contains("session-expired")) {
+          onError != null ? onError("Oturumun süresi dolmuş.") : null;
+        } else {
+          onError != null ? onError("Bilinmeyen bir hata oluştu.\n\n$e") : null;
+        }
+      }
+    }
+  }
+
+  ///Logs out of Firebase Auth.
+  static Future<void> logout(
+    void Function()? onSuccess,
+    void Function(Object e)? onError,
+  ) async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    try {
+      await auth.signOut();
+      if (onSuccess != null) {
+        onSuccess();
+      }
+    } catch (e) {
+     if (onError != null) {
+        onError(e);
+      }
+    }
   }
 
   ///If the user is logged in, you can request the UID using this function.
@@ -928,25 +1268,34 @@ class CosmosFirebase {
   ///</br>If 'fevalue' is true, it [decode]s the incoming data and returns
   ///</br>the data in list type. If not, it returns the data directly.
   static Future<dynamic> get(String reference, bool fevalue) async {
-    DatabaseReference ref = FirebaseDatabase.instance.ref(reference);
-    DataSnapshot snapshot = await ref.get();
-    if (fevalue == true) {
-      return CosmosFirebase.decode(snapshot.value.toString());
-    } else {
-      return snapshot;
+    try {
+      DatabaseReference ref = FirebaseDatabase.instance.ref(reference);
+      DataSnapshot snapshot = await ref.get();
+      if (fevalue == true) {
+        return CosmosFirebase.decode(snapshot.value.toString());
+      } else {
+        return snapshot;
+      }
+    } catch (e) {
+      throw Exception("CosmosFirebase get() Problem: $e");
     }
   }
 
   ///It finds the user in the 'users' reference from the
   ///</br>Firebase Realtime Database and returns its information
   ///</br>as a list. In order for this function to work successfully,
-  ///</br>the user must be registered with [register].
+  ///</br>the user must be registered with [signUp].
   static Future<List> getProfile({String? uid}) async {
-    if (uid == null) {
-      return await CosmosFirebase.get('users/$uid', true);
-    } else {
-      String uids = await CosmosFirebase.getUID();
-      return await CosmosFirebase.get('users/"$uids"', true);
+    try {
+      if (uid == null) {
+        return await CosmosFirebase.get(
+            'users/"${uid!.replaceAll('"', "")}"', true);
+      } else {
+        String uids = await CosmosFirebase.getUID();
+        return await CosmosFirebase.get('users/"$uids"', true);
+      }
+    } catch (e) {
+      throw Exception("CosmosFirebase getProfile() Problem: $e");
     }
   }
 }
@@ -969,7 +1318,7 @@ class CosmosTools {
       elementCurrent[index] =
           CosmosTime.fromMillisecondsToDate(int.parse(elementCurrent[index]))
               .toString();
-                sortList.add(elementCurrent);
+      sortList.add(elementCurrent);
     }
     return sortList;
   }
@@ -1014,49 +1363,6 @@ class CosmosTools {
   ///Closes all screens and opens a new screen with RouteName. You need to specify 'routes' from within the [MaterialApp] widget for it to work.
   static void allCloseAndGo(BuildContext context, String routeName) {
     Navigator.popAndPushNamed(context, routeName);
-  }
-
-  ///GetRequest the given link and return the content.
-  static dynamic getRequestContent(String url) async {
-    final content = await Dio().get(url);
-    return content.statusCode == 200
-        ? content.data
-        : content.statusCode.toString();
-  }
-
-  ///GetRequest the given link and return the headers.
-  static dynamic getRequestHeaders(String url) async {
-    final content = await Dio().get(url);
-    return content.statusCode == 200
-        ? content.headers
-        : content.statusCode.toString();
-  }
-
-  ///GetRequest the given link and return the extras.
-  static dynamic getRequestExtra(String url) async {
-    final content = await Dio().get(url);
-    return content.statusCode == 200
-        ? content.extra
-        : content.statusCode.toString();
-  }
-
-  ///Define this function for the desired context when
-  ///</br>making screen changes with the [JeaFriday] class.
-  ///</br>In the navigatorKey part, give the variable that defines
-  ///</br>the [JeaFriday.navigatorKey] function. Please make sure the same
-  ///</br>variable is also in the [MaterialApp] widget.
-  static BuildContext navigatorKeyContext(
-      GlobalKey<NavigatorState> navigatorKey) {
-    return navigatorKey.currentState!.context;
-  }
-
-  ///It acts as a constructor for the navigatorKey
-  ///</br>property of the [MaterialApp] widget. If you
-  ///</br>are going to make screen changes using the [JeaFriday]
-  ///</br>class, assign this function to a variable and define the
-  ///</br>variable in the navigatorKey property of the [MaterialApp] widget.
-  static GlobalKey<NavigatorState> navigatorKey() {
-    return GlobalKey<NavigatorState>();
   }
 }
 
@@ -1389,115 +1695,25 @@ class CosmosTopBar extends StatelessWidget {
   }
 }
 
-///TR</br>
-///Hızlı ve zahmetsiz bir yan menü oluşturmak hiç bu kadar kolay olmamıştı! El yapımı, hızlı ve verimli bir yan menü oluşturun.</br></br>
-///US</br>
-///Creating a side menu quickly and effortlessly has never been easier! Create a handcrafted side menu quickly and efficiently.
-class CosmosSideMenu extends StatelessWidget {
-  final Widget page;
-  final List<Widget> children;
-  const CosmosSideMenu({
-    super.key,
-    required this.page,
-    required this.children,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          page,
-          Container(
-            width: MediaQuery.sizeOf(context).width,
-            height: MediaQuery.sizeOf(context).height,
-            color: Colors.black.withOpacity(0.3),
-          ),
-          Row(
-            children: [
-              Container(
-                height: MediaQuery.sizeOf(context).height,
-                width: MediaQuery.sizeOf(context).width * 0.6,
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 10, 10, 10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2), // Gölge rengi
-                      spreadRadius: 10, // Gölgenin yayılma miktarı
-                      blurRadius: 7, // Gölge bulanıklığı
-                      offset: const Offset(
-                          4, 0), // Gölgenin yönü (sağ tarafa doğru)
-                    ),
-                  ],
-                ),
-                child: LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                    return JeaVerticalScrollViews(
-                      child: const SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 10,
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: SizedBox(
-                  height: MediaQuery.sizeOf(context).height,
-                  width: MediaQuery.sizeOf(context).width * 0.4,
-                  child: Container(
-                    width: 20,
-                    height: 20,
-                    color: Colors.transparent,
-                  ),
-                ),
-              )
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-void openSideMenu(BuildContext context, Widget page, List<Widget> children) {
-  CosmosTools.to(
-    context,
-    CosmosSideMenu(page: page, children: children),
-  );
-}
-
 class CosmosNavigation extends StatelessWidget {
   final bool? visible;
   final Widget child;
   final dynamic Function(int) onTap;
-  final Color backgroundColor;
-  final Color inactiveColor;
-  final Color activeColor;
-  final int activeIndex;
+  final Color? backgroundColor;
+  final Color? inactiveColor;
+  final Color? activeColor;
+  final int? activeIndex;
   final List<IconData> icons;
-  final void Function() onPressed;
+
   const CosmosNavigation({
     super.key,
     required this.child,
     required this.onTap,
-    required this.backgroundColor,
-    required this.inactiveColor,
-    required this.activeColor,
-    required this.activeIndex,
+    this.backgroundColor,
+    this.inactiveColor,
+    this.activeColor,
+    this.activeIndex,
     required this.icons,
-    required this.onPressed,
     this.visible,
   });
 
@@ -1522,11 +1738,11 @@ class CosmosNavigation extends StatelessWidget {
             child: Scaffold(
               backgroundColor: Colors.transparent,
               bottomNavigationBar: NavBar(
-                activeColor: activeColor,
-                activeIndex: activeIndex,
-                backgroundColor: backgroundColor,
+                activeColor: activeColor ?? Colors.black,
+                activeIndex: activeIndex ?? 0,
+                backgroundColor: backgroundColor ?? Colors.white,
                 icons: icons,
-                inactiveColor: inactiveColor,
+                inactiveColor: inactiveColor ?? Colors.black38,
                 onTap: onTap,
               ),
             ),
@@ -3186,4 +3402,980 @@ class CosmosTR {
     }
     return countryList;
   }
+}
+
+// 29.02.2024
+
+Future<void> copy(String text) async {
+  await FlutterClipboard.copy(text);
+}
+
+Future<String> paste() async {
+  return await FlutterClipboard.paste();
+}
+
+// datePicker(BuildContext context) {
+//   datetime.DatePicker.showDatePicker(context,
+//       showTitleActions: true,
+//       theme: const datetime.DatePickerTheme(),
+//       minTime: DateTime(2018, 3, 5),
+//       maxTime: DateTime(2019, 6, 7), onChanged: (date) {
+//     print('change $date');
+//   }, onConfirm: (date) {
+//     print('confirm $date');
+//   }, currentTime: DateTime.now(), locale: datetime.LocaleType.tr);
+// }
+
+class CosmosOneSignal {
+  static Future<String> sendTitle(String appID, String apiKey, String message,
+      {String? androidSmallIcon,
+      List<String>? includedSegments,
+      String? priority}) async {
+    final dio = Dio();
+
+    final body = jsonEncode({
+      'app_id': appID,
+      'android_small_icon': androidSmallIcon ?? "ic_stat_onesignal_default",
+      'included_segments': includedSegments ?? ['All'],
+      'contents': {'en': message},
+      'priority': priority ?? 'high',
+    });
+
+    try {
+      final response = await dio.post(
+        'https://onesignal.com/api/v1/notifications',
+        data: body,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Authorization': 'Basic $apiKey', // API anahtarı
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return "success";
+      } else {
+        throw Exception('CosmosOneSignal Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('CosmosOneSignal Error: $e');
+    }
+  }
+
+  static Future<String> sendTitleAndSubtitle(
+      String appID, String apiKey, String title, String message,
+      {String? androidSmallIcon,
+      List<String>? includedSegments,
+      String? priority}) async {
+    final dio = Dio();
+
+    final body = jsonEncode({
+      'app_id': appID,
+      'android_small_icon': androidSmallIcon ?? "ic_stat_onesignal_default",
+      'included_segments': includedSegments ?? ['All'],
+      'headings': {'en': title},
+      'contents': {'en': message},
+      'priority': priority ?? 'high',
+    });
+
+    try {
+      final response = await dio.post(
+        'https://onesignal.com/api/v1/notifications',
+        data: body,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Authorization': 'Basic $apiKey', // API anahtarı
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return "success";
+      } else {
+        throw Exception('CosmosOneSignal Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('CosmosOneSignal Error: $e');
+    }
+  }
+}
+
+class CosmosSlider {
+  static Widget classic(
+    List data, {
+    double? imageWidth,
+    double? imageHeight,
+    bool? autoPlay,
+    Duration? autoPlayAnimationDuration,
+  }) {
+    return slider.CarouselSlider.builder(
+      itemCount: data.length,
+      options: slider.CarouselOptions(
+        autoPlay: autoPlay ?? true,
+        aspectRatio: 2.0,
+        enlargeCenterPage: true,
+        autoPlayAnimationDuration:
+            autoPlayAnimationDuration ?? const Duration(milliseconds: 800),
+      ),
+      itemBuilder: (context, index, realIdx) {
+        return Center(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: CachedNetworkImage(
+              imageUrl: data[index],
+              fit: BoxFit.cover,
+              width: imageWidth ?? width(context),
+              height: imageHeight ?? height(context) * 0.25,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  static Widget custom(
+    List data,
+    Widget Function(BuildContext context, int index, int realIdx)?
+        itemBuilder, {
+    bool? autoPlay,
+    Duration? autoPlayAnimationDuration,
+  }) {
+    return slider.CarouselSlider.builder(
+      itemCount: data.length,
+      options: slider.CarouselOptions(
+        autoPlay: autoPlay ?? true,
+        aspectRatio: 2.0,
+        enlargeCenterPage: true,
+        autoPlayAnimationDuration:
+            autoPlayAnimationDuration ?? const Duration(milliseconds: 800),
+      ),
+      itemBuilder: itemBuilder,
+    );
+  }
+}
+
+class CosmosTextSlide extends StatefulWidget {
+  final List<String> items;
+  final bool replay;
+  final Duration? duration;
+  final TextStyle? style;
+
+  final StrutStyle? strutStyle;
+  final TextAlign? textAlign;
+  final TextDirection? textDirection;
+  final Locale? locale;
+  final bool? softWrap;
+  final TextOverflow? overflow;
+  final double? textScaleFactor;
+  final TextScaler? textScaler;
+  final int? maxLines;
+  const CosmosTextSlide({
+    super.key,
+    required this.items,
+    required this.replay,
+    this.duration,
+    this.style,
+    this.strutStyle,
+    this.textAlign,
+    this.textDirection,
+    this.locale,
+    this.softWrap,
+    this.overflow,
+    this.textScaleFactor,
+    this.textScaler,
+    this.maxLines,
+  });
+
+  @override
+  State<CosmosTextSlide> createState() => _CosmosTextSlideState();
+}
+
+class _CosmosTextSlideState extends State<CosmosTextSlide> {
+  late StreamController<String> _controller;
+  late Stream<String> _stream;
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = StreamController<String>();
+    _stream = _controller.stream;
+
+    _startTicker();
+  }
+
+  @override
+  void dispose() {
+    _controller.close();
+    super.dispose();
+  }
+
+  void _startTicker() {
+    Timer.periodic(widget.duration ?? const Duration(seconds: 1), (timer) {
+      if (_currentIndex < widget.items.length) {
+        _controller.add(widget.items[_currentIndex]);
+        _currentIndex++;
+      } else {
+        if (widget.replay) {
+          _currentIndex = 0;
+        } else {
+          timer.cancel();
+        }
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<String>(
+      stream: _stream,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Text(
+            snapshot.data!,
+            style: widget.style,
+            locale: widget.locale,
+            maxLines: widget.maxLines,
+            overflow: widget.overflow,
+            softWrap: widget.softWrap,
+            strutStyle: widget.strutStyle,
+            textAlign: widget.textAlign,
+            textDirection: widget.textDirection,
+            // ignore: deprecated_member_use
+            textScaleFactor: widget.textScaleFactor,
+            textScaler: widget.textScaler,
+          );
+        } else {
+          return const Text('');
+        }
+      },
+    );
+  }
+}
+
+// class CosmosText extends StatefulWidget {
+//   final String text;
+//   final TextStyle style;
+//   final Axis scrollAxis;
+//   final double speed;
+
+//   final void Function()? onDone;
+
+//   const CosmosText({
+//     super.key,
+//     required this.text,
+//     this.style = const TextStyle(fontSize: 16.0),
+//     this.scrollAxis = Axis.horizontal,
+//     this.speed = 70,
+//     this.onDone,
+//   });
+
+//   @override
+//   State<CosmosText> createState() => _CosmosTextState();
+// }
+
+// class _CosmosTextState extends State<CosmosText> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Marquee(
+//       text: widget.text,
+//       style: widget.style,
+//       scrollAxis: widget.scrollAxis,
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       blankSpace: 20.0,
+//       velocity: widget.speed,
+//       pauseAfterRound: const Duration(seconds: 1),
+//       startPadding: 10.0,
+//       accelerationDuration: const Duration(seconds: 1),
+//       accelerationCurve: Curves.linear,
+//       decelerationDuration: const Duration(milliseconds: 500),
+//       decelerationCurve: Curves.easeOut,
+//       onDone: widget.onDone,
+//     );
+//   }
+// }
+
+class CosmosWeb {
+  static Future<Map> get(String uri) async {
+    try {
+      Dio dio = Dio();
+      Response response = await dio.get(uri);
+      if (response.statusCode == 200) {
+        return {
+          "data": response.data,
+          "extra": response.extra,
+          "headers": response.headers,
+          "isRedirect": response.isRedirect,
+          "realUri": response.realUri,
+          "redirects": response.redirects,
+          "requestOptions": response.requestOptions,
+          "statusCode": response.statusCode,
+          "statusMessage": response.statusMessage,
+        };
+      } else {
+        throw Exception("CosmosWeb/Get Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("CosmosWeb/Get Error: $e");
+    }
+  }
+}
+
+class CosmosButton {
+  static Widget button(
+      {required String text,
+      void Function()? onTap,
+      String? uri,
+      EdgeInsetsGeometry? padding,
+      BoxDecoration? decoration,
+      Color? color,
+      double? fontSize,
+      double? height,
+      double? width,
+      EdgeInsetsGeometry? margin,
+      TextStyle? style,
+      Color? backgroundColor,
+      BorderRadius? borderRadius}) {
+    return Padding(
+      padding: margin ?? const EdgeInsets.all(2),
+      child: InkWell(
+        onTap: uri == null
+            ? onTap
+            : () {
+                launchUrl(Uri.parse(uri));
+              },
+        borderRadius: borderRadius ?? BorderRadius.circular(5),
+        child: Container(
+          width: width,
+          height: height,
+          padding:
+              padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: decoration ??
+              BoxDecoration(
+                color: backgroundColor ?? Colors.blue.withOpacity(0.5),
+                borderRadius: borderRadius ?? BorderRadius.circular(5),
+              ),
+          child: Text(
+            text,
+            style: style ??
+                TextStyle(
+                  color: color ?? Colors.white,
+                  fontSize: fontSize ?? 12,
+                ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static Widget borderButton(
+      {required String text,
+      void Function()? onTap,
+      String? uri,
+      double? height,
+      double? width,
+      double? borderWidth,
+      EdgeInsetsGeometry? padding,
+      BoxDecoration? decoration,
+      EdgeInsetsGeometry? margin,
+      Color? color,
+      double? fontSize,
+      TextStyle? style,
+      Color? borderColor,
+      BorderRadius? borderRadius}) {
+    return Padding(
+      padding: margin ?? const EdgeInsets.all(2),
+      child: InkWell(
+        onTap: uri == null
+            ? onTap
+            : () {
+                launchUrl(Uri.parse(uri));
+              },
+        borderRadius: borderRadius ?? BorderRadius.circular(5),
+        child: Container(
+          width: width,
+          height: height,
+          padding:
+              padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: decoration ??
+              BoxDecoration(
+                border: Border.all(
+                  color: borderColor ?? Colors.blue,
+                  width: borderWidth ?? 1,
+                ),
+                borderRadius: borderRadius ?? BorderRadius.circular(5),
+              ),
+          child: Text(
+            text,
+            style: style ??
+                TextStyle(
+                  color: color ?? Colors.white,
+                  fontSize: fontSize ?? 12,
+                ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static Widget iconButton(
+      {required IconData icon,
+      void Function()? onTap,
+      String? uri,
+      double? height,
+      double? width,
+      EdgeInsetsGeometry? padding,
+      BoxDecoration? decoration,
+      EdgeInsetsGeometry? margin,
+      Color? color,
+      Color? backgroundColor,
+      double? size,
+      Color? borderColor,
+      BorderRadius? borderRadius}) {
+    return Padding(
+      padding: margin ?? const EdgeInsets.all(2),
+      child: InkWell(
+        onTap: uri == null
+            ? onTap
+            : () {
+                launchUrl(Uri.parse(uri));
+              },
+        borderRadius: borderRadius ?? BorderRadius.circular(1020),
+        child: Container(
+          width: width,
+          height: height,
+          padding: padding ?? const EdgeInsets.all(8),
+          decoration: decoration ??
+              BoxDecoration(
+                borderRadius: borderRadius ?? BorderRadius.circular(1020),
+                color: backgroundColor ?? Colors.blue.withOpacity(0.5),
+              ),
+          child: Icon(
+            icon,
+            color: color ?? Colors.white,
+            size: size ?? 12,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CosmosSideMenu {
+  static PageController pageController = PageController(initialPage: 1);
+  static Future<void> openSideMenu() async {
+    await pageController.previousPage(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.linear,
+    );
+  }
+
+  static Future<void> closeSideMenu() async {
+    await pageController.nextPage(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.linear,
+    );
+  }
+
+  static Widget builder({
+    required Widget sideMenu,
+    required Widget home,
+  }) {
+    return GestureDetector(
+      onHorizontalDragUpdate: (details) {
+        pageController.position
+            .moveTo(pageController.position.pixels - details.delta.dx);
+      },
+      child: PageView(
+        controller: pageController,
+        children: [
+          sideMenu,
+          home,
+        ],
+      ),
+    );
+  }
+
+  static Widget sideMenu(
+      {required List<Widget> children,
+      bool? scrollable,
+      Color? backgroundColor}) {
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      body: CosmosBody(
+        scrollable: scrollable ?? true,
+        scrollDirection: Axis.vertical,
+        children: children,
+      ),
+    );
+  }
+}
+
+class CosmosNavigator {
+  static Future<T?> pushFromRightToLeft<T extends Object?>(
+    BuildContext context,
+    Widget route, {
+    Duration? transitionDuration,
+  }) async {
+    return Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+        ) {
+          return route;
+        },
+        transitionsBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child,
+        ) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1.0, 0.0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
+    );
+  }
+
+  static Future<T?> pushFromLeftToRight<T extends Object?>(
+    BuildContext context,
+    Widget route, {
+    Duration? transitionDuration,
+  }) async {
+    return Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+        ) {
+          return route;
+        },
+        transitionsBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child,
+        ) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(-1.0, 0.0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
+    );
+  }
+
+  static Future<T?> pushDownFromTop<T extends Object?>(
+    BuildContext context,
+    Widget route, {
+    Duration? transitionDuration,
+  }) async {
+    return Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+        ) {
+          return route;
+        },
+        transitionsBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child,
+        ) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.0, -1.0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
+    );
+  }
+
+  static Future<T?> pushTopFromDown<T extends Object?>(
+    BuildContext context,
+    Widget route, {
+    Duration? transitionDuration,
+  }) async {
+    return Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+        ) {
+          return route;
+        },
+        transitionsBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child,
+        ) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.0, 1.0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
+    );
+  }
+
+  ///Switches from the current screen to the target screen.
+  static Future<T?> pushNonAnimated<T extends Object?>(
+      BuildContext context, Widget page) {
+    return Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => page,
+        transitionDuration: const Duration(
+          milliseconds: 0,
+        ),
+        transitionsBuilder: (
+          context,
+          animation,
+          secondaryAnimation,
+          child,
+        ) {
+          return child;
+        },
+      ),
+    );
+  }
+
+  //REPLACE;
+
+  static Future<T?> pushFromRightToLeftReplacement<T extends Object?>(
+    BuildContext context,
+    Widget route, {
+    Duration? transitionDuration,
+  }) async {
+    return Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+        ) {
+          return route;
+        },
+        transitionsBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child,
+        ) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1.0, 0.0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
+    );
+  }
+
+  static Future<T?> pushFromLeftToRightReplacement<T extends Object?>(
+    BuildContext context,
+    Widget route, {
+    Duration? transitionDuration,
+  }) async {
+    return Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+        ) {
+          return route;
+        },
+        transitionsBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child,
+        ) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(-1.0, 0.0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
+    );
+  }
+
+  static Future<T?> pushDownFromTopReplacement<T extends Object?>(
+    BuildContext context,
+    Widget route, {
+    Duration? transitionDuration,
+  }) async {
+    return Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+        ) {
+          return route;
+        },
+        transitionsBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child,
+        ) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.0, -1.0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
+    );
+  }
+
+  static Future<T?> pushTopFromDownReplacement<T extends Object?>(
+    BuildContext context,
+    Widget route, {
+    Duration? transitionDuration,
+  }) async {
+    return Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+        ) {
+          return route;
+        },
+        transitionsBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child,
+        ) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.0, 1.0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
+    );
+  }
+
+  ///Switches from the current screen to the target screen.
+  static Future<T?> pushNonAnimatedReplacement<T extends Object?>(
+      BuildContext context, Widget page) {
+    return Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => page,
+        transitionDuration: const Duration(
+          milliseconds: 0,
+        ),
+        transitionsBuilder: (
+          context,
+          animation,
+          secondaryAnimation,
+          child,
+        ) {
+          return child;
+        },
+      ),
+    );
+  }
+
+  ///Close this screen and return to the previous screen.
+  static void pop(BuildContext context) {
+    Navigator.pop(context);
+  }
+}
+
+class CosmosMenu {
+  static Widget builder(
+    BuildContext context, {
+    required List<PopupMenuEntry<dynamic>> items,
+    required Widget child,
+    Color? backgroundColor,
+  }) {
+    return GestureDetector(
+      onTapDown: (details) {
+        double left = details.globalPosition.dx;
+        double top = details.globalPosition.dy;
+        double right = width(context) - left;
+        double bottom = height(context) - top;
+        showMenu(
+          shadowColor: Colors.black,
+          elevation: 4,
+          surfaceTintColor: backgroundColor ?? Colors.black,
+          color: backgroundColor ?? Colors.black,
+          context: context,
+          position: RelativeRect.fromLTRB(left, top, right, bottom),
+          items: items,
+        );
+      },
+      child: child,
+    );
+  }
+
+  static PopupMenuItem iconItem(
+    IconData icon,
+    String text, {
+    void Function()? onTap,
+    Color? textColor,
+  }) {
+    return PopupMenuItem(
+      height: 1,
+      padding: const EdgeInsets.all(8),
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: textColor,
+            size: 12,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            text,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static PopupMenuItem item(
+    String text, {
+    void Function()? onTap,
+    Color? textColor,
+  }) {
+    return PopupMenuItem(
+      height: 1,
+      padding: const EdgeInsets.all(8),
+      onTap: onTap,
+      child: Row(
+        children: [
+          const SizedBox(width: 5),
+          Text(
+            text,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CosmosLinkText extends StatelessWidget {
+  final String text;
+  final int? maxLines;
+  final TextStyle? style;
+  final TextOverflow? overflow;
+  final Future<void> Function(String link)? onTapLink;
+
+  const CosmosLinkText({
+    super.key,
+    required this.text,
+    this.maxLines,
+    this.style,
+    this.onTapLink,
+    this.overflow,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      maxLines: maxLines,
+      overflow: maxLines == null ? TextOverflow.clip : TextOverflow.ellipsis,
+      text: TextSpan(
+        children: _parseText(text),
+        style: const TextStyle(
+          color: Colors.grey,
+        ),
+      ),
+    );
+  }
+
+  List<TextSpan> _parseText(String text) {
+    List<TextSpan> spans = [];
+    RegExp linkRegex = RegExp(r"(?:https?|ftp):\/\/[\w/\-?=%.]+\.[\w/\-?=%.]+",
+        caseSensitive: false);
+
+    text.splitMapJoin(linkRegex, onMatch: (match) {
+      String link = match.group(0)!;
+      spans.add(TextSpan(
+          text: link,
+          style: const TextStyle(
+            color: Colors.blue,
+          ),
+          recognizer: TapGestureRecognizer()
+            ..onTap = () async {
+              await onTapLink!(link);
+            }));
+      return '';
+    }, onNonMatch: (nonMatch) {
+      spans.add(TextSpan(text: nonMatch));
+      return '';
+    });
+
+    return spans;
+  }
+}
+
+Future<bool> openUrl(String url) async {
+  return await launchUrl(Uri.parse(url));
 }

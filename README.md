@@ -2,11 +2,24 @@
 
 _Developer: JeaFriday🎶_
 
+
+![Cosmos Banner](https://raw.githubusercontent.com/JeaFrid/Cosmos/main/assets/cosmosbanner.png)
+
+[![Build Status](https://img.shields.io/badge/Developer-JeaFriday-purple)](https://t.me/JeaFrid) [![Build Status](https://img.shields.io/badge/YouTube-Kırmızı_Patika-red)](https://www.youtube.com/channel/UC02BVsVHvdYqYkjrfE6eMXw) 
+
+
+
 ## Why Was It Developed?
+
+<img src="https://raw.githubusercontent.com/JeaFrid/Cosmos/main/assets/confetti.png" width="50" height="50">
+
+
 
 This package was developed to bring together challenging materials created as a result of the efforts of many developers, ensuring that no application will make you struggle with lines of code!
 
 ## Included in the Package
+
+<img src="https://raw.githubusercontent.com/JeaFrid/Cosmos/main/assets/flask.png" width="50" height="50">
 
 - **CosmosAlert:** An alert viewer with options such as IOS, Material, and customizable. Use it as a screen or just show alerts.
   
@@ -43,6 +56,8 @@ This package was developed to bring together challenging materials created as a 
 - **height, width, heightPercentage, widthPercentage:** It allows you to perform operations with screen aspect ratios. It acts somewhat like the 'MediaQuery.sizeOf(context).width' class.
 
 ## Package Documentation
+
+<img src="https://raw.githubusercontent.com/JeaFrid/Cosmos/main/assets/diary.png" width="50" height="50">
 
 ### CosmosBackgroundImage
 An example for adding, editing, and more background images to your application.
