@@ -23,6 +23,9 @@ import 'package:clipboard/clipboard.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
+import 'package:encrypt/encrypt.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 
 ///TR</br>
 ///Uygulamanın arkaplanına bir görsel ekler. Şeffaflık ayarı düşürüldükçe, arkaplan rengine kaynaşır.</br></br>
@@ -66,7 +69,46 @@ class CosmosBackgroundImage extends StatelessWidget {
   }
 }
 
+class CosmosCrypto {
+  final key = encrypt.Key.fromUtf8('32characterslongpassphrasehere!!');
+  String encryptText(String plainText) {
+    final iv = IV.fromSecureRandom(16);
+    final encrypter = Encrypter(AES(key, mode: AESMode.cbc, padding: 'PKCS7'));
+
+    final encrypted = encrypter.encrypt(plainText, iv: iv);
+    final encryptedWithIv = iv.base64 + encrypted.base64;
+    return encryptedWithIv;
+  }
+
+  String decryptText(String encryptedTextWithIv) {
+    final iv = IV.fromBase64(encryptedTextWithIv.substring(0, 24));
+    final encryptedText = encryptedTextWithIv.substring(24);
+
+    final encrypter = Encrypter(AES(key, mode: AESMode.cbc, padding: 'PKCS7'));
+    final decrypted = encrypter.decrypt64(encryptedText, iv: iv);
+    return decrypted;
+  }
+}
+
 class CosmosTime {
+  static DateTime getDateTime(dateTimeString) {
+    DateFormat format = DateFormat('dd/MM/yyyy HH:mm:ss');
+    DateTime dateTime = format.parse(dateTimeString);
+    return dateTime;
+  }
+
+  static String getDateTR(DateTime dateTime) {
+    String day = DateFormat.d().format(dateTime);
+    String month = DateFormat.MMMM('tr').format(dateTime);
+    String year = DateFormat.y().format(dateTime);
+    String weekday = DateFormat.EEEE('tr').format(dateTime);
+
+    String formattedDate =
+        '$day $month $year, $weekday, ${DateFormat("HH:mm").format(dateTime)}';
+
+    return formattedDate;
+  }
+
   static String fromMillisecondsToDate(int milliseconds) {
     DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(milliseconds);
 
@@ -889,22 +931,22 @@ class CosmosFirebase {
   }
 
   static Future<void> delete(
-    String ref,
+    String ref, {
     void Function()? onSuccess,
     void Function(Object e)? onError,
-  ) async {
+  }) async {
     try {
       DatabaseReference databaseReference =
           FirebaseDatabase.instance.ref().child(ref);
 
       await databaseReference.remove().then((_) {
         if (onSuccess != null) {
-        onSuccess();
-      }
+          onSuccess();
+        }
       }).catchError((onError) {
-       if (onError != null) {
-        onError(e);
-      }
+        if (onError != null) {
+          onError(e);
+        }
       });
     } catch (e) {
       if (onError != null) {
@@ -1230,10 +1272,10 @@ class CosmosFirebase {
   }
 
   ///Logs out of Firebase Auth.
-  static Future<void> logout(
+  static Future<void> logout({
     void Function()? onSuccess,
     void Function(Object e)? onError,
-  ) async {
+  }) async {
     final FirebaseAuth auth = FirebaseAuth.instance;
     try {
       await auth.signOut();
@@ -1241,7 +1283,7 @@ class CosmosFirebase {
         onSuccess();
       }
     } catch (e) {
-     if (onError != null) {
+      if (onError != null) {
         onError(e);
       }
     }
@@ -1285,7 +1327,7 @@ class CosmosFirebase {
   ///</br>Firebase Realtime Database and returns its information
   ///</br>as a list. In order for this function to work successfully,
   ///</br>the user must be registered with [signUp].
-  static Future<List> getProfile({String? uid}) async {
+  static Future<dynamic> getProfile({String? uid}) async {
     try {
       if (uid == null) {
         return await CosmosFirebase.get(
@@ -1704,6 +1746,7 @@ class CosmosNavigation extends StatelessWidget {
   final Color? activeColor;
   final int? activeIndex;
   final List<IconData> icons;
+  final double? iconSize;
 
   const CosmosNavigation({
     super.key,
@@ -1715,6 +1758,7 @@ class CosmosNavigation extends StatelessWidget {
     this.activeIndex,
     required this.icons,
     this.visible,
+    this.iconSize,
   });
 
   @override
@@ -1738,6 +1782,7 @@ class CosmosNavigation extends StatelessWidget {
             child: Scaffold(
               backgroundColor: Colors.transparent,
               bottomNavigationBar: NavBar(
+                iconSize: iconSize,
                 activeColor: activeColor ?? Colors.black,
                 activeIndex: activeIndex ?? 0,
                 backgroundColor: backgroundColor ?? Colors.white,
@@ -1759,6 +1804,7 @@ class NavBar extends StatefulWidget {
   final Color inactiveColor;
   final Color activeColor;
   final int activeIndex;
+  final double? iconSize;
   final List<IconData> icons;
   const NavBar({
     super.key,
@@ -1768,6 +1814,7 @@ class NavBar extends StatefulWidget {
     required this.activeColor,
     required this.activeIndex,
     required this.icons,
+    this.iconSize,
   });
 
   @override
@@ -1784,6 +1831,7 @@ class _NavBarState extends State<NavBar> {
       notchSmoothness: NotchSmoothness.softEdge,
       leftCornerRadius: 32,
       rightCornerRadius: 32,
+      iconSize: widget.iconSize,
       activeColor: widget.activeColor,
       inactiveColor: widget.inactiveColor,
       backgroundColor: widget.backgroundColor,
@@ -3561,10 +3609,8 @@ class CosmosTextSlide extends StatefulWidget {
   final bool replay;
   final Duration? duration;
   final TextStyle? style;
-
   final StrutStyle? strutStyle;
   final TextAlign? textAlign;
-  final TextDirection? textDirection;
   final Locale? locale;
   final bool? softWrap;
   final TextOverflow? overflow;
@@ -3579,7 +3625,6 @@ class CosmosTextSlide extends StatefulWidget {
     this.style,
     this.strutStyle,
     this.textAlign,
-    this.textDirection,
     this.locale,
     this.softWrap,
     this.overflow,
@@ -3642,7 +3687,7 @@ class _CosmosTextSlideState extends State<CosmosTextSlide> {
             softWrap: widget.softWrap,
             strutStyle: widget.strutStyle,
             textAlign: widget.textAlign,
-            textDirection: widget.textDirection,
+
             // ignore: deprecated_member_use
             textScaleFactor: widget.textScaleFactor,
             textScaler: widget.textScaler,
